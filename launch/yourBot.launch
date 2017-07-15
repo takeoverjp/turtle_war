@@ -1,3 +1,5 @@
 <launch>
-  <node pkg="turtle_war" type="randomBot.py" name="randomBot" output="screen"/>
+  <!-- <remap from="/turtle1/cmd_vel" to="/cmd_vel"/> -->
+  <node pkg="turtle_war" type="sample.py" name="randomBot" output="screen"/>
+  <!-- <node pkg="turtlesim" type="turtle_teleop_key" name="keyBot" output="screen"/> -->
 </launch>

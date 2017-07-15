@@ -51,7 +51,7 @@ class SampleBot(AbstractBot):
         rmask = np.zeros(h.shape, dtype=np.uint8)
         rmask[((h < 20) | (h > 200)) & (s > 128)] = 255
         ymask = np.zeros(h.shape, dtype=np.uint8)
-        ymask[((h > 10) & (h < 25)) & (s > 50) & (v > 50)] = 255
+        ymask[((h > 10) & (h < 50)) & (s > 50) & (v > 50)] = 255
         cv2.imshow("RMask Window", rmask)
         cv2.imshow("YMask Window", ymask)
         cv2.waitKey(1)
@@ -70,9 +70,9 @@ class SampleBot(AbstractBot):
         yroi_r=ymask[:,2*imgshape[1]/3:imgshape[1]] 
         yroi_c=ymask[:,imgshape[1]/3:2*imgshape[1]/3] 
 
-        self.score_l = self.score_l + cv2.countNonZero(yroi_l) * 20
-        self.score_r = self.score_r + cv2.countNonZero(yroi_r) * 20
-        self.score_c = self.score_c + cv2.countNonZero(yroi_c) * 20
+        self.score_l = self.score_l + cv2.countNonZero(yroi_l) * 30
+        self.score_r = self.score_r + cv2.countNonZero(yroi_r) * 30
+        self.score_c = self.score_c + cv2.countNonZero(yroi_c) * 30
 
         cv2.imshow("Image window", cv_image)
 

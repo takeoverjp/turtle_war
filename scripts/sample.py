@@ -21,10 +21,6 @@ class SampleBot(AbstractBot):
         except CvBridgeError as e:
             print(e)
 
-        (rows,cols,channels) = cv_image.shape
-        if cols > 60 and rows > 60 :
-            cv2.circle(cv_image, (50,50), 10, 255)
-
         cv2.imshow("Image window", cv_image)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV_FULL)
         h = hsv[:, :, 0]
@@ -36,7 +32,7 @@ class SampleBot(AbstractBot):
         ymask[((h > 10) & (h < 25)) & (s > 50) & (v > 50)] = 255
         cv2.imshow("RMask Window", rmask)
         cv2.imshow("YMask Window", ymask)
-        cv2.waitKey(3)
+        cv2.waitKey(1)
 
         imgshape=rmask.shape  
         roiWidth=imgshape[1]/4

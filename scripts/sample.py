@@ -9,12 +9,34 @@ import numpy as np
 from abstractBot import *
 from geometry_msgs.msg import Twist
 
+MAX_SPEED = 0.5
+MAX_TURN = 3
+
 class SampleBot(AbstractBot):
     def __init__(self, name):
         super(SampleBot, self).__init__(name)
         self.score_l = 0
         self.score_r = 0
         self.score_c = 0
+        self.STRTGY_KEEP = 1
+        self.STRTGY_LEFT = 2
+        self.STRTGY_CENTER = 3
+        self.STRTGY_RIGHT = 4
+
+    def cvArrow(img, pt1, pt2, color, thickness=1, lineType=8, shift=0):
+        cv2.line(img,pt1,pt2,color,thickness,lineType,shift)
+        vx = pt2[0] - pt1[0]
+        vy = pt2[1] - pt1[1]
+        v  = math.sqrt(vx ** 2 + vy ** 2)
+        ux = vx / v
+        uy = vy / v
+        w = 5
+        h = 10
+        ptl = (int(pt2[0] - uy*w - ux*h), int(pt2[1] + ux*w - uy*h))
+        ptr = (int(pt2[0] + uy*w - ux*h), int(pt2[1] - ux*w - uy*h))
+        cv2.line(img,pt2,ptl,color,thickness,lineType,shift)
+        cv2.line(img,pt2,ptr,color,thickness,lineType,shift)
+
     def callback(self, image):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(image, "bgr8")
@@ -60,31 +82,31 @@ class SampleBot(AbstractBot):
 
         while not rospy.is_shutdown():
             if self.center_bumper or self.left_bumper or self.right_bumper:
-                control_speed = -0.5
+                control_speed = -1 * MAX_SPEED
                 control_turn = 0
             
             if self.score_l == 0 and self.score_c == 0 and self.score_r == 0:
                 control_speed = 0
-                control_turn = 3
-                print "KEEP"
+                control_turn = MAX_TURN
+                self.direction = self.STRTGY_KEEP
             elif self.score_l > self.score_r:
                 if self.score_l > self.score_c:
                     control_speed = 0
-                    control_turn = 3
-                    print "left : " + str(self.score_l)
+                    control_turn = MAX_TURN
+                    self.direction = self.STRTGY_LEFT
                 else:
-                    control_speed = 0.5
+                    control_speed = MAX_SPEED
                     control_turn = 0
-                    print "center : " + str(self.score_c)
+                    self.direction = self.STRTGY_CENTER
             else:
                 if self.score_r > self.score_c:
                     control_speed = 0
-                    control_turn = -3
-                    print "right : " + str(self.score_r)
+                    control_turn = -1 * MAX_TURN
+                    self.direction = self.STRTGY_RIGHT
                 else:
-                    control_speed = 0.5
+                    control_speed = MAX_SPEED
                     control_turn = 0
-                    print "center : " + str(self.score_c)
+                    self.direction = self.STRTGY_CENTER
 
             twist = Twist()
             twist.linear.x = control_speed; twist.linear.y = 0; twist.linear.z = 0

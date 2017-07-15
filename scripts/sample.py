@@ -22,6 +22,7 @@ class SampleBot(AbstractBot):
         self.STRTGY_LEFT = 2
         self.STRTGY_CENTER = 3
         self.STRTGY_RIGHT = 4
+        self.direction = self.STRTGY_KEEP
 
     def cvArrow(img, pt1, pt2, color, thickness=1, lineType=8, shift=0):
         cv2.line(img,pt1,pt2,color,thickness,lineType,shift)
@@ -43,7 +44,6 @@ class SampleBot(AbstractBot):
         except CvBridgeError as e:
             print(e)
 
-        cv2.imshow("Image window", cv_image)
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV_FULL)
         h = hsv[:, :, 0]
         s = hsv[:, :, 1]
@@ -74,6 +74,8 @@ class SampleBot(AbstractBot):
         self.score_r = self.score_r + cv2.countNonZero(yroi_r) * 20
         self.score_c = self.score_c + cv2.countNonZero(yroi_c) * 20
 
+        cv2.imshow("Image window", cv_image)
+
     def strategy(self):
         r = rospy.Rate(100)
 
@@ -91,7 +93,7 @@ class SampleBot(AbstractBot):
                 self.direction = self.STRTGY_KEEP
             elif self.score_l > self.score_r:
                 if self.score_l > self.score_c:
-                    control_speed = 0
+                    control_speed = MAX_SPEED
                     control_turn = MAX_TURN
                     self.direction = self.STRTGY_LEFT
                 else:
@@ -100,7 +102,7 @@ class SampleBot(AbstractBot):
                     self.direction = self.STRTGY_CENTER
             else:
                 if self.score_r > self.score_c:
-                    control_speed = 0
+                    control_speed = MAX_SPEED
                     control_turn = -1 * MAX_TURN
                     self.direction = self.STRTGY_RIGHT
                 else:

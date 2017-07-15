@@ -35,27 +35,22 @@ class SampleBot(AbstractBot):
         cv2.waitKey(1)
 
         imgshape=rmask.shape  
-        roiWidth=imgshape[1]/4
-        sx=imgshape[1]/2-roiWidth  
-        sy=0
-        ex=imgshape[1]/2+roiWidth  
-        ey=imgshape[0]
-        #extract roi as array  
-        roi_l=rmask[sy:ey,0:imgshape[1]/3] 
-        roi_r=rmask[sy:ey,2*imgshape[1]/3:imgshape[1]] 
-        roi_c=rmask[sy:ey,imgshape[1]/3:2*imgshape[1]/3] 
 
-        self.score_l = cv2.countNonZero(roi_l)
-        self.score_r = cv2.countNonZero(roi_r)
-        self.score_c = cv2.countNonZero(roi_c)
+        rroi_l=rmask[:,0:imgshape[1]/3] 
+        rroi_r=rmask[:,2*imgshape[1]/3:imgshape[1]] 
+        rroi_c=rmask[:,imgshape[1]/3:2*imgshape[1]/3] 
 
-        roi_l=ymask[sy:ey,0:sx] 
-        roi_r=ymask[sy:ey,ex:roiWidth] 
-        roi_c=ymask[sy:ey,sx:ex] 
+        self.score_l = cv2.countNonZero(rroi_l)
+        self.score_r = cv2.countNonZero(rroi_r)
+        self.score_c = cv2.countNonZero(rroi_c)
 
-        self.score_l = self.score_l + cv2.countNonZero(roi_l) * 20
-        self.score_r = self.score_r + cv2.countNonZero(roi_r) * 20
-        self.score_c = self.score_c + cv2.countNonZero(roi_c) * 20
+        yroi_l=ymask[:,0:imgshape[1]/3] 
+        yroi_r=ymask[:,2*imgshape[1]/3:imgshape[1]] 
+        yroi_c=ymask[:,imgshape[1]/3:2*imgshape[1]/3] 
+
+        self.score_l = self.score_l + cv2.countNonZero(yroi_l) * 20
+        self.score_r = self.score_r + cv2.countNonZero(yroi_r) * 20
+        self.score_c = self.score_c + cv2.countNonZero(yroi_c) * 20
 
     def strategy(self):
         r = rospy.Rate(100)
@@ -63,18 +58,11 @@ class SampleBot(AbstractBot):
         control_speed = 0
         control_turn = 0
 
-        UPDATE_FREQUENCY = 2
-        update_time = 0
-
         while not rospy.is_shutdown():
             if self.center_bumper or self.left_bumper or self.right_bumper:
-                update_time = time.time()
                 control_speed = -0.5
                 control_turn = 0
             
-            # elif time.time() - update_time > UPDATE_FREQUENCY:
-            update_time = time.time()
-
             if self.score_l == 0 and self.score_c == 0 and self.score_r == 0:
                 control_speed = 0
                 control_turn = 3

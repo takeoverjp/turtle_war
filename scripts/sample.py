@@ -45,13 +45,21 @@ class SampleBot(AbstractBot):
         ex=imgshape[1]/2+roiWidth  
         ey=imgshape[0]
         #extract roi as array  
-        roi_l=rmask[sy:ey,0:sx] 
-        roi_r=rmask[sy:ey,ex:roiWidth] 
-        roi_c=rmask[sy:ey,sx:ex] 
+        roi_l=rmask[sy:ey,0:imgshape[1]/3] 
+        roi_r=rmask[sy:ey,2*imgshape[1]/3:imgshape[1]] 
+        roi_c=rmask[sy:ey,imgshape[1]/3:2*imgshape[1]/3] 
 
         self.score_l = cv2.countNonZero(roi_l)
         self.score_r = cv2.countNonZero(roi_r)
         self.score_c = cv2.countNonZero(roi_c)
+
+        roi_l=ymask[sy:ey,0:sx] 
+        roi_r=ymask[sy:ey,ex:roiWidth] 
+        roi_c=ymask[sy:ey,sx:ex] 
+
+        self.score_l = self.score_l + cv2.countNonZero(roi_l) * 20
+        self.score_r = self.score_r + cv2.countNonZero(roi_r) * 20
+        self.score_c = self.score_c + cv2.countNonZero(roi_c) * 20
 
     def strategy(self):
         r = rospy.Rate(100)
